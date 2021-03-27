@@ -1,4 +1,4 @@
-FROM php:latest-fpm
+FROM php:fpm
 
 RUN apt-get update
 
@@ -18,7 +18,7 @@ RUN curl --silent --show-error https://getcomposer.org/installer | php -- --inst
 
 WORKDIR /var/www/
 
-ADD ./patterneasy/ .
+ADD ./www/ .
 
 RUN chmod 777 /var/www/storage/
 

@@ -2,7 +2,7 @@ FROM node:alpine
 
 WORKDIR /usr/src/app
 
-ADD ./patterneasy/ .
+ADD ./www/ .
 
 RUN yarn
 
