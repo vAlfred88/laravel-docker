@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./docker/php/Dockerfile
     volumes:
-      - ./patterneasy/:/var/www
+      - ./www/:/var/www
       - ./docker/php/php:/usr/local/etc/php
     networks:
       - app
@@ -41,17 +41,15 @@ services:
     networks:
       - app
   db:
-    image: mysql:5.7
+    image: postgres
     container_name: db
     restart: always
-    command: --disable-partition-engine-check
     environment:
-      MYSQL_ROOT_PASSWORD: supersecret
-      MYSQL_DATABASE: homestead
-      MYSQL_USER: homestead
-      MYSQL_PASSWORD: secret
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: homestead
+      POSTGRES_DB: homestead
     ports:
-      - "3306:3306"
+      - "5432:5432"
     networks:
       - app
   nginx:
@@ -61,7 +59,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./patterneasy/:/var/www
+      - ./www/:/var/www
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     networks:
       - app
