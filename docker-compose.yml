@@ -1,0 +1,71 @@
+version: '3'
+services:
+  php:
+    container_name: php
+    working_dir: /var/www
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    volumes:
+      - ./patterneasy/:/var/www
+      - ./docker/php/php:/usr/local/etc/php
+    networks:
+      - app
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+    restart: unless-stopped
+  echoserver:
+    build:
+      context: .
+      dockerfile: ./docker/laravel-echo-server/Dockerfile
+    container_name: echoserver
+    working_dir: /usr/src/app
+    volumes:
+      - ./docker/laravel-echo-server/:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - redis
+    networks:
+      - app
+    ports:
+      - "3000:6001"
+    restart: unless-stopped
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - app
+  db:
+    image: mysql:5.7
+    container_name: db
+    restart: always
+    command: --disable-partition-engine-check
+    environment:
+      MYSQL_ROOT_PASSWORD: supersecret
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3306:3306"
+    networks:
+      - app
+  nginx:
+    image: nginx:alpine
+    container_name: web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./patterneasy/:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - app
+    depends_on:
+      - php
+networks:
+  app:
