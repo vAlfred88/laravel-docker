@@ -1,7 +1,7 @@
 version: '3'
 services:
   php:
-    container_name: php
+    container_name: ${APP_NAME}_php
     working_dir: /var/www
     build:
       context: .
@@ -16,11 +16,12 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+
   echoserver:
     build:
       context: .
       dockerfile: ./docker/laravel-echo-server/Dockerfile
-    container_name: echoserver
+    container_name: ${APP_NAME}_echoserver
     working_dir: /usr/src/app
     volumes:
       - ./docker/laravel-echo-server/:/usr/src/app
@@ -30,31 +31,86 @@ services:
     networks:
       - app
     ports:
-      - "3000:6001"
+      - "6001:6001"
     restart: unless-stopped
+
+  composer:
+    build:
+      context: .
+      dockerfile: ./docker/composer/Dockerfile
+    container_name: ${APP_NAME}_composer
+    volumes:
+      - ./www:/var/www
+    working_dir: /var/www
+    depends_on:
+      - php
+    entrypoint: ["composer", "--ignore-platforms-reqs"]
+    networks:
+      - app
+
   redis:
     image: redis:alpine
-    container_name: redis
+    container_name: ${APP_NAME}_redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     networks:
       - app
+
+  cron:
+    build:
+      context: .
+      dockerfile: ./docker/cron/Dockerfile
+    volumes:
+      - ./www:/var/www
+    container_name: ${APP_NAME}_cron
+    networks:
+      - app
+
+  yarn:
+    build:
+      context: .
+      dockerfile: ./docker/node
+    container_name: ${APP_NAME}_yarn
+    volumes:
+      - ./www:/var/www/
+    working_dir: /var/www
+    networks:
+      - app
+
   db:
-    image: postgres
-    container_name: db
+    image: mysql:alpine
+    container_name: ${APP_NAME}_db
     restart: always
+    volumes:
+      - db:/var/lib/mysql
     environment:
+      MYSQL_ROOT_PASSWORD: supersecret
       POSTGRES_PASSWORD: secret
       POSTGRES_USER: homestead
       POSTGRES_DB: homestead
     ports:
-      - "5432:5432"
+      - "3306:3306"
     networks:
       - app
+
+  artisan:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    container_name: ${APP_NAME}_artisan
+    volumes:
+      - ./www:/var/www
+    depends_on:
+      - db
+    working_dir: /var/www
+    entrypoint: ["php", "/var/www/artisan"]
+    networks:
+      - app
+
   nginx:
     image: nginx:alpine
-    container_name: web
+    container_name: ${APP_NAME}_web
     restart: unless-stopped
     ports:
       - "80:80"
@@ -65,5 +121,10 @@ services:
       - app
     depends_on:
       - php
+
 networks:
   app:
+
+volumes:
+  db:
+    driver: local

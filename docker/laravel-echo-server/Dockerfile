@@ -4,7 +4,8 @@ WORKDIR /usr/src/app
 
 ADD ./docker/laravel-echo-server/ .
 
-RUN yarn
+RUN npm install -g laravel-echo-server
 
-EXPOSE 3000
-CMD [ "npm", "start", "--force" ]
+EXPOSE 6001
+
+CMD ["npm", "start"]

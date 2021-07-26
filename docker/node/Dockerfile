@@ -1,9 +1,9 @@
 FROM node:alpine
 
-WORKDIR /usr/src/app
+WORKDIR /var/www
 
 ADD ./www/ .
 
-RUN yarn
+RUN npm install -g yarn
 
-CMD ["npm", "run", "watch"]
+CMD ["yarn", "run"]
