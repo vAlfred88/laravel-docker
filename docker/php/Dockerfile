@@ -1,4 +1,6 @@
-FROM php:fpm-alpine
+FROM php:7.3-fpm
+
+ARG path
 
 RUN apt-get update
 
@@ -9,15 +11,15 @@ RUN apt-get clean
 
 RUN pecl install imagick
 
-RUN docker-php-ext-install pdo pdo_pgsql pdo_mysql zip gd exif calendar
-RUN docker-php-ext-enable gd pdo_mysql calendar
+RUN docker-php-ext-install pdo pdo_mysql zip gd calendar
+RUN docker-php-ext-enable pdo pdo_mysql zip gd calendar
 
 RUN curl --silent --show-error https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/
 
-ADD ./www/ .
+#ADD $path .
 
-RUN chmod 777 /var/www/storage/
+#RUN chmod 777 /var/www/storage/
 
 EXPOSE 9000
