@@ -5,7 +5,7 @@ ARG path
 RUN apt-get update
 
 RUN apt-get install -qq git curl libmcrypt-dev libjpeg-dev libpng-dev libfreetype6-dev
-RUN apt-get install -qq libbz2-dev libpq-dev zip libzip-dev exiftool imagemagick libmagickwand-dev
+RUN apt-get install -qq libbz2-dev libpq-dev zip libzip-dev exiftool imagemagick libmagickwand-dev supervisor
 
 RUN apt-get clean
 
